@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finlixa — Smart Financial Tools</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        /* Hide scrollbar for cleaner look in specific areas if needed */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-slate-900 dark:text-gray-100 transition-colors duration-200">
+
+    <nav class="sticky top-0 z-50 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md border-b border-gray-200 dark:border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" onclick="navigate('home')">
+                    <span class="font-bold text-xl tracking-tight">Finlixa</span>
+                </div>
+
+                <!-- Desktop Nav -->
+                <div class="hidden md:flex space-x-8 items-center">
+                    <a href="#" onclick="navigate('home')" class="text-gray-600 dark:text-gray-300 hover:text-brand-600 dark:hover:text-brand-400 font-medium transition-colors">Home</a>
+                    
+                    <!-- Search -->
+                    <div class="relative">
+                        <input type="text" id="nav-search" placeholder="Search tools..." class="w-48 pl-8 pr-4 py-1.5 rounded-full border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 dark:text-white transition-all">
+                        <svg class="w-4 h-4 absolute left-2.5 top-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        
+                        <!-- Search Dropdown -->
+                        <div id="nav-search-results" class="hidden absolute top-10 left-0 w-full bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-200 dark:border-slate-700 max-h-60 overflow-y-auto"></div>
+                    </div>
+
+                    <!-- Dark Mode Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                        <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"></path></svg>
+                        <svg id="theme-toggle-light-icon" class="hidden w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" fill-rule="evenodd" clip-rule="evenodd"></path></svg>
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center space-x-2">
+                    <button id="mobile-theme-toggle" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                    <button id="mobile-menu-btn" class="p-2 text-gray-600 dark:text-gray-300">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white dark:bg-slate-800 border-t border-gray-200 dark:border-slate-700 px-4 py-4 space-y-4 shadow-lg">
+            <input type="text" id="mobile-search" placeholder="Search tools..." class="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-gray-50 dark:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-brand-500">
+            <!-- Fixed overflow here -->
+            <div id="mobile-search-results" class="hidden flex-col bg-white dark:bg-slate-700 rounded-lg border border-gray-200 dark:border-slate-600 overflow-y-auto max-h-60"></div>
+            <a href="#" onclick="navigate('home')" class="block font-medium text-gray-700 dark:text-gray-200">Home</a>
+        </div>
+    </nav>
+
+    <!-- MAIN APP CONTAINER -->
+    <main id="app-container" class="min-h-[calc(100vh-140px)]">
+        
+        <div id="view-home" class="view-section block">
+            <!-- Hero Section -->
+            <section class="bg-gradient-to-b from-brand-50 to-white dark:from-slate-800 dark:to-slate-900 py-16 md:py-24">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                    <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white tracking-tight mb-4">
+                        Smart Financial Calculators
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-10">
+                        Calculate investments, loans, savings, taxes and everyday financial decisions in seconds. Simple tools for smarter decisions.
+                    </p>
+                    
+                    <!-- Main Search -->
+                    <div class="max-w-xl mx-auto relative group">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-gray-400 group-focus-within:text-brand-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" id="hero-search" class="block w-full pl-12 pr-4 py-4 rounded-xl border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white shadow-sm focus:ring-2 focus:ring-brand-500 focus:border-brand-500 transition-all text-lg" placeholder="What do you want to calculate?">
+                        
+                        <div id="hero-search-results" class="hidden absolute z-10 mt-2 w-full bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-100 dark:border-slate-700 max-h-72 overflow-y-auto text-left"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tools Grid -->
+            <section class="py-12 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">Popular Financial Tools</h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="tools-grid">
+                    <!-- Tool cards will be injected here by JS -->
+                </div>
+            </section>
+        </div>
+
+        <!-- DYNAMIC CALCULATOR VIEW CONTAINER -->
+        <div id="view-calculator" class="view-section hidden py-8 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <button onclick="navigate('home')" class="text-brand-600 dark:text-brand-400 hover:underline flex items-center text-sm font-medium mb-2">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                        Back to Tools
+                    </button>
+                    <h1 id="calc-title" class="text-3xl font-bold text-gray-900 dark:text-white">Calculator Title</h1>
+                    <p id="calc-desc" class="text-gray-500 dark:text-gray-400 mt-1">Calculator description goes here.</p>
+                </div>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Left Column: Inputs -->
+                <div class="w-full lg:w-1/3 space-y-6">
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+                        <div id="calc-inputs" class="space-y-5">
+                            <!-- Inputs injected dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Results & Chart -->
+                <div class="w-full lg:w-2/3 space-y-6">
+                    <!-- Results Cards -->
+                    <div id="calc-results" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Results injected dynamically -->
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div id="chart-container" class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-700 p-6 flex items-center justify-center min-h-[300px]">
+                        <canvas id="resultChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Disclaimer -->
+            <div class="mt-12 p-4 bg-gray-50 dark:bg-slate-800/50 rounded-lg text-xs text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-slate-700">
+                <strong>Disclaimer:</strong> This calculator is provided for educational and informational purposes only. Results are estimates based on the information entered and assumptions used. Actual returns, interest rates, taxes and financial outcomes may differ. This website does not provide financial, investment, tax or legal advice.
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-800 py-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        <p>&copy; 2026 Finlixa — Smart Financial Tools. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // --- THEME MANAGEMENT ---
+        const themeToggleDarkIcon = document.getElementById('theme-toggle-dark-icon');
+        const themeToggleLightIcon = document.getElementById('theme-toggle-light-icon');
+        
+        function updateThemeUI() {
+            if (document.documentElement.classList.contains('dark')) {
+                themeToggleLightIcon.classList.remove('hidden');
+                themeToggleDarkIcon.classList.add('hidden');
+            } else {
+                themeToggleLightIcon.classList.add('hidden');
+                themeToggleDarkIcon.classList.remove('hidden');
+            }
+            // Redraw chart if exists to match theme (prevent unhiding empty chart)
+            if(window.currentChartInstance && window.lastChartData) {
+                renderChart(window.lastChartData);
+            }
+        }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('color-theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            updateThemeUI();
+        }
+
+        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+        document.getElementById('mobile-theme-toggle').addEventListener('click', toggleTheme);
+
+        // Initial Theme Check
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+        updateThemeUI();
+
+        // Mobile Menu Toggle
+        document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        });
+
+        // --- CORE UTILS ---
+        const formatCurrencyIN = (num) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(num);
+        const formatNumberIN = (num) => new Intl.NumberFormat('en-IN', { maximumFractionDigits: 2 }).format(num);
+        
+        function parseINNumber(str) {
+            if(!str) return 0;
+            return Number(str.toString().replace(/[^0-9.-]+/g,""));
+        }
+
+        // --- CALCULATOR DEFINITIONS ---
+        const calculators = [
+            {
+                id: 'sip',
+                title: 'SIP Calculator',
+                desc: 'Calculate returns on your Systematic Investment Plan.',
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>',
+                category: 'Investment'
+            },
+            {
+                id: 'emi',
+                title: 'EMI Calculator',
+                desc: 'Calculate monthly loan repayment and interest.',
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>',
+                category: 'Loans'
+            },
+            {
+                id: 'ci',
+                title: 'Compound Interest',
+                desc: 'See how your money grows over time with compounding.',
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>',
+                category: 'Savings'
+            },
+            {
+                id: 'fd',
+                title: 'FD Calculator',
+                desc: 'Calculate Fixed Deposit maturity value.',
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path>',
+                category: 'Savings'
+            },
+            {
+                id: 'cagr',
+                title: 'CAGR Calculator',
+                desc: 'Calculate Compound Annual Growth Rate.',
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>',
+                category: 'Investment'
+            },
+            {
+                id: 'gst',
+                title: 'GST Calculator',
+                desc: 'Add or remove Goods and Services Tax.',
+                icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"></path>',
+                category: 'Tax'
+            }
+        ];
+
+        // --- ROUTING & UI INJECTION ---
+        function navigate(viewId, calcId = null) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById('mobile-menu').classList.add('hidden'); // Close mobile menu
+
+            // Defensive guard for non-existent calcId
+            if (viewId === 'calculator' && calcId && !calculators.find(c => c.id === calcId)) {
+                viewId = 'home';
+                calcId = null;
+            }
+
+            if (viewId === 'home') {
+                document.getElementById('view-home').classList.remove('hidden');
+                renderHomeGrid();
+            } else if (viewId === 'calculator' && calcId) {
+                document.getElementById('view-calculator').classList.remove('hidden');
+                initCalculator(calcId);
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function renderHomeGrid() {
+            const grid = document.getElementById('tools-grid');
+            grid.innerHTML = '';
+            calculators.forEach(calc => {
+                grid.innerHTML += `
+                    <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm hover:shadow-md border border-gray-100 dark:border-slate-700 transition-all p-6 cursor-pointer group" onclick="navigate('calculator', '${calc.id}')">
+                        <div class="w-12 h-12 bg-brand-50 dark:bg-slate-700 rounded-lg flex items-center justify-center text-brand-600 dark:text-brand-400 mb-4 group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">${calc.icon}</svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">${calc.title}</h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-sm mb-4 h-10">${calc.desc}</p>
+                        <span class="text-brand-600 dark:text-brand-400 font-medium text-sm flex items-center">
+                            Calculate <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        </span>
+                    </div>
+                `;
+            });
+        }
+
+        // --- SEARCH FUNCTIONALITY ---
+        function setupSearch(inputId, resultsId) {
+            const input = document.getElementById(inputId);
+            const results = document.getElementById(resultsId);
+
+            input.addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                if(query.length === 0) {
+                    results.classList.add('hidden');
+                    return;
+                }
+                
+                const filtered = calculators.filter(c => c.title.toLowerCase().includes(query) || c.category.toLowerCase().includes(query));
+                
+                if(filtered.length > 0) {
+                    results.innerHTML = filtered.map(c => `
+                        <div class="px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700 cursor-pointer border-b border-gray-100 dark:border-slate-600 last:border-0 flex items-center search-item" 
+                             onclick="document.getElementById('${inputId}').value=''; document.getElementById('${resultsId}').classList.add('hidden'); navigate('calculator', '${c.id}')">
+                            <div class="w-8 h-8 mr-3 bg-brand-50 dark:bg-slate-600 rounded flex items-center justify-center text-brand-600 dark:text-brand-400">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">${c.icon}</svg>
+                            </div>
+                            <div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-white">${c.title}</div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400">${c.category}</div>
+                            </div>
+                        </div>
+                    `).join('');
+                    results.classList.remove('hidden');
+                } else {
+                    results.innerHTML = `<div class="px-4 py-3 text-sm text-gray-500 dark:text-gray-400">No tools found for "${query}"</div>`;
+                    results.classList.remove('hidden');
+                }
+            });
+
+            // Enter key binding
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !results.classList.contains('hidden')) {
+                    const firstResult = results.querySelector('.search-item');
+                    if (firstResult) {
+                        firstResult.click();
+                    }
+                }
+            });
+
+            // Close when clicking outside
+            document.addEventListener('click', (e) => {
+                if(!input.contains(e.target) && !results.contains(e.target)) {
+                    results.classList.add('hidden');
+                }
+            });
+        }
+
+        setupSearch('hero-search', 'hero-search-results');
+        setupSearch('nav-search', 'nav-search-results');
+        setupSearch('mobile-search', 'mobile-search-results');
+
+        // --- CALCULATOR ENGINE ---
+        let currentCalc = null;
+
+        function initCalculator(id) {
+            const calcMeta = calculators.find(c => c.id === id);
+            if (!calcMeta) { navigate('home'); return; }
+            document.getElementById('calc-title').innerText = calcMeta.title;
+            document.getElementById('calc-desc').innerText = calcMeta.desc;
+            
+            const inputsContainer = document.getElementById('calc-inputs');
+            currentCalc = id;
+            
+            // Clean previous chart
+            if(window.currentChartInstance) {
+                window.currentChartInstance.destroy();
+                window.currentChartInstance = null;
+                document.getElementById('chart-container').classList.add('hidden');
+            }
+            window.lastChartData = null;
+
+            // Build Inputs based on ID
+            let inputsHTML = '';
+            if (id === 'sip') {
+                inputsHTML = createInputGroup('Monthly Investment (₹)', 'sip-amount', 10000, 500, 1000000, 500) +
+                             createInputGroup('Expected Return Rate (p.a %)', 'sip-rate', 12, 1, 30, 0.5) +
+                             createInputGroup('Time Period (Years)', 'sip-years', 10, 1, 40, 1);
+            } else if (id === 'emi') {
+                inputsHTML = createInputGroup('Loan Amount (₹)', 'emi-amount', 1000000, 10000, 50000000, 10000) +
+                             createInputGroup('Interest Rate (p.a %)', 'emi-rate', 8.5, 1, 20, 0.1) +
+                             createInputGroup('Loan Tenure (Years)', 'emi-years', 10, 1, 30, 1);
+            } else if (id === 'ci') {
+                inputsHTML = createInputGroup('Principal Amount (₹)', 'ci-principal', 100000, 1000, 10000000, 1000) +
+                             createInputGroup('Interest Rate (p.a %)', 'ci-rate', 8, 1, 30, 0.1) +
+                             createInputGroup('Time Period (Years)', 'ci-years', 5, 1, 50, 1) +
+                             `<div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Compounding Frequency</label>
+                                <select id="ci-freq" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 calc-input-trigger">
+                                    <option value="1">Annually</option>
+                                    <option value="2">Half-Yearly</option>
+                                    <option value="4">Quarterly</option>
+                                    <option value="12" selected>Monthly</option>
+                                </select>
+                              </div>`;
+            } else if (id === 'fd') {
+                inputsHTML = createInputGroup('Total Investment (₹)', 'fd-principal', 100000, 1000, 50000000, 1000) +
+                             createInputGroup('Interest Rate (p.a %)', 'fd-rate', 7, 1, 15, 0.1) +
+                             createInputGroup('Time Period (Years)', 'fd-years', 5, 1, 20, 1);
+            } else if (id === 'cagr') {
+                inputsHTML = createInputGroup('Initial Value (₹)', 'cagr-initial', 100000, 1000, 100000000, 1000) +
+                             createInputGroup('Final Value (₹)', 'cagr-final', 200000, 1000, 100000000, 1000) +
+                             createInputGroup('Time Period (Years)', 'cagr-years', 5, 1, 50, 1);
+            } else if (id === 'gst') {
+                inputsHTML = createInputGroup('Initial Amount (₹)', 'gst-amount', 10000, 1, 10000000, 100) +
+                             `<div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Tax Slabs (%)</label>
+                                <div class="flex gap-2">
+                                    <button class="flex-1 py-1 px-2 text-sm rounded bg-brand-100 text-brand-700 dark:bg-slate-700 dark:text-brand-400 hover:bg-brand-200" onclick="setGstRate(5)">5%</button>
+                                    <button class="flex-1 py-1 px-2 text-sm rounded bg-brand-100 text-brand-700 dark:bg-slate-700 dark:text-brand-400 hover:bg-brand-200" onclick="setGstRate(12)">12%</button>
+                                    <button class="flex-1 py-1 px-2 text-sm rounded bg-brand-100 text-brand-700 dark:bg-slate-700 dark:text-brand-400 hover:bg-brand-200" onclick="setGstRate(18)">18%</button>
+                                    <button class="flex-1 py-1 px-2 text-sm rounded bg-brand-100 text-brand-700 dark:bg-slate-700 dark:text-brand-400 hover:bg-brand-200" onclick="setGstRate(28)">28%</button>
+                                </div>
+                              </div>` +
+                             createInputGroup('Custom GST Rate (%)', 'gst-rate', 18, 0, 100, 1) +
+                             `<div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">GST Mode</label>
+                                <select id="gst-mode" class="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 calc-input-trigger">
+                                    <option value="add" selected>Add GST (Exclusive)</option>
+                                    <option value="remove">Remove GST (Inclusive)</option>
+                                </select>
+                              </div>`;
+            }
+
+            inputsContainer.innerHTML = inputsHTML;
+            
+            // Attach listeners to synchronize number and range inputs, and trigger calculation
+            document.querySelectorAll('.calc-input-trigger').forEach(el => {
+                el.addEventListener('input', (e) => {
+                    const target = e.target;
+
+                    if (target.id.endsWith('-num')) {
+                        const baseId = target.id.slice(0, -4); 
+                        const slider = document.getElementById(`${baseId}-slider`);
+                        if (slider) slider.value = target.value;
+                    } else if (target.id.endsWith('-slider')) {
+                        const baseId = target.id.slice(0, -7); 
+                        const num = document.getElementById(`${baseId}-num`);
+                        if (num) num.value = target.value;
+                    }
+
+                    calculateResults();
+                });
+            });
+
+            // Initial calculation
+            calculateResults();
+        }
+
+        // Helper to create Input Group (Number + Range)
+        // Fixed slider styling to use Tailwind accent colors natively
+        function createInputGroup(label, baseId, defaultVal, min, max, step) {
+            const param = baseId.split('-')[1]; 
+            const idPrefix = baseId.split('-')[0];
+            return `
+                <div class="mb-5">
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">${label}</label>
+                        <input type="number" id="${idPrefix}-${param}-num" value="${defaultVal}" min="${min}" max="${max}" step="${step}" 
+                            class="w-28 text-right font-semibold text-brand-600 dark:text-brand-400 bg-brand-50 dark:bg-slate-700/50 border border-brand-100 dark:border-slate-600 rounded-md py-1 px-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 calc-input-trigger">
+                    </div>
+                    <input type="range" id="${idPrefix}-${param}-slider" value="${defaultVal}" min="${min}" max="${max}" step="${step}" 
+                        class="w-full cursor-pointer accent-brand-600 dark:accent-brand-500 calc-input-trigger">
+                </div>
+            `;
+        }
+
+        // Properly updates specific DOM element names generated by the helper
+        function setGstRate(rate) {
+            const num = document.getElementById('gst-rate-num');
+            const slider = document.getElementById('gst-rate-slider');
+            if (num) num.value = rate;
+            if (slider) slider.value = rate;
+            calculateResults();
+        }
+
+        // Data layer validation
+        function getVal(id) {
+            const el = document.getElementById(id);
+            if(!el) return 0;
+            let v = parseFloat(el.value);
+            if(isNaN(v)) v = 0;
+            if(el.min !== undefined && el.min !== '' && v < parseFloat(el.min)) v = parseFloat(el.min);
+            if(el.max !== undefined && el.max !== '' && v > parseFloat(el.max)) v = parseFloat(el.max);
+            return v;
+        }
+
+        function renderCards(cardsInfo) {
+            const container = document.getElementById('calc-results');
+            container.innerHTML = cardsInfo.map(c => `
+                <div class="${c.highlight ? 'bg-brand-50 border-brand-200 dark:bg-brand-900/20 dark:border-brand-800' : 'bg-white border-gray-200 dark:bg-slate-800 dark:border-slate-700'} border rounded-xl p-4 shadow-sm flex flex-col justify-center">
+                    <div class="text-sm text-gray-500 dark:text-gray-400 mb-1">${c.label}</div>
+                    <div class="text-xl sm:text-2xl font-bold ${c.highlight ? 'text-brand-700 dark:text-brand-400' : 'text-gray-900 dark:text-white'} break-words">${c.value}</div>
+                </div>
+            `).join('');
+        }
+
+        function calculateResults() {
+            let cards = [];
+            let chartData = null;
+
+            try {
+                if (currentCalc === 'sip') {
+                    const P = getVal('sip-amount-num');
+                    const r = getVal('sip-rate-num');
+                    const n = getVal('sip-years-num');
+
+                    const i = r / (12 * 100);
+                    const months = n * 12;
+                    
+                    let fv = 0;
+                    if(i === 0) fv = P * months;
+                    else fv = P * ( (Math.pow(1 + i, months) - 1) / i ) * (1 + i);
+                    
+                    const invested = P * months;
+                    const returns = fv - invested;
+
+                    cards = [
+                        { label: 'Invested Amount', value: formatCurrencyIN(invested) },
+                        { label: 'Estimated Returns', value: formatCurrencyIN(returns) },
+                        { label: 'Total Value', value: formatCurrencyIN(fv), highlight: true }
+                    ];
+
+                    chartData = {
+                        type: 'doughnut',
+                        labels: ['Invested Amount', 'Estimated Returns'],
+                        data: [invested, returns]
+                    };
+                } 
+                else if (currentCalc === 'emi') {
+                    const P = getVal('emi-amount-num');
+                    const r = getVal('emi-rate-num');
+                    const n = getVal('emi-years-num');
+
+                    const i = r / (12 * 100);
+                    const months = n * 12;
+
+                    let emi = 0;
+                    if (i === 0) emi = P / months;
+                    else emi = (P * i * Math.pow(1 + i, months)) / (Math.pow(1 + i, months) - 1);
+                    
+                    const totalPayment = emi * months;
+                    const totalInterest = totalPayment - P;
+
+                    cards = [
+                        { label: 'Monthly EMI', value: formatCurrencyIN(Math.round(emi)), highlight: true },
+                        { label: 'Principal Amount', value: formatCurrencyIN(P) },
+                        { label: 'Total Interest', value: formatCurrencyIN(Math.round(totalInterest)) }
+                    ];
+
+                    chartData = {
+                        type: 'pie',
+                        labels: ['Principal', 'Interest'],
+                        data: [P, totalInterest]
+                    };
+                }
+                else if (currentCalc === 'ci') {
+                    const P = getVal('ci-principal-num');
+                    const r = getVal('ci-rate-num');
+                    const t = getVal('ci-years-num');
+                    const freqEl = document.getElementById('ci-freq');
+                    const n = freqEl ? parseInt(freqEl.value) : 12;
+
+                    const amount = P * Math.pow((1 + (r/100)/n), n*t);
+                    const interest = amount - P;
+
+                    cards = [
+                        { label: 'Principal', value: formatCurrencyIN(P) },
+                        { label: 'Interest Earned', value: formatCurrencyIN(interest) },
+                        { label: 'Total Amount', value: formatCurrencyIN(amount), highlight: true }
+                    ];
+
+                    chartData = {
+                        type: 'doughnut',
+                        labels: ['Principal', 'Interest'],
+                        data: [P, interest]
+                    };
+                }
+                else if (currentCalc === 'fd') {
+                    const P = getVal('fd-principal-num');
+                    const r = getVal('fd-rate-num');
+                    const t = getVal('fd-years-num');
+                    const n = 4;
+                    
+                    const amount = P * Math.pow((1 + (r/100)/n), n*t);
+                    const interest = amount - P;
+
+                    cards = [
+                        { label: 'Invested Amount', value: formatCurrencyIN(P) },
+                        { label: 'Interest Earned', value: formatCurrencyIN(interest) },
+                        { label: 'Maturity Value', value: formatCurrencyIN(amount), highlight: true }
+                    ];
+
+                    chartData = {
+                        type: 'pie',
+                        labels: ['Investment', 'Returns'],
+                        data: [P, interest]
+                    };
+                }
+                else if (currentCalc === 'cagr') {
+                    const iv = getVal('cagr-initial-num');
+                    const fv = getVal('cagr-final-num');
+                    const t = getVal('cagr-years-num');
+
+                    let cagr = 0;
+                    if(iv > 0 && t > 0) {
+                        cagr = (Math.pow((fv / iv), (1 / t)) - 1) * 100;
+                    }
+
+                    cards = [
+                        { label: 'Absolute Return', value: formatNumberIN(((fv - iv)/iv)*100) + '%' },
+                        { label: 'Profit/Loss', value: formatCurrencyIN(fv - iv) },
+                        { label: 'CAGR', value: formatNumberIN(cagr) + '%', highlight: true }
+                    ];
+                    
+                    chartData = null; // No chart for CAGR
+                }
+                else if (currentCalc === 'gst') {
+                    const amount = getVal('gst-amount-num');
+                    const rate = getVal('gst-rate-num');
+                    const mode = document.getElementById('gst-mode').value;
+
+                    let gstAmount = 0;
+                    let totalAmount = 0;
+                    let baseAmount = 0;
+
+                    if(mode === 'add') {
+                        gstAmount = amount * (rate / 100);
+                        totalAmount = amount + gstAmount;
+                        baseAmount = amount;
+                    } else {
+                        totalAmount = amount;
+                        baseAmount = amount / (1 + (rate / 100));
+                        gstAmount = totalAmount - baseAmount;
+                    }
+
+                    cards = [
+                        { label: 'Net Amount', value: formatCurrencyIN(baseAmount) },
+                        { label: `GST (${rate}%)`, value: formatCurrencyIN(gstAmount) },
+                        { label: 'Gross Amount', value: formatCurrencyIN(totalAmount), highlight: true }
+                    ];
+
+                    chartData = {
+                        type: 'doughnut',
+                        labels: ['Net Amount', 'GST'],
+                        data: [baseAmount, gstAmount]
+                    };
+                }
+
+                renderCards(cards);
+                
+                if (chartData) {
+                    renderChart(chartData);
+                } else {
+                    window.lastChartData = null; 
+                    document.getElementById('chart-container').classList.add('hidden');
+                    if(window.currentChartInstance) {
+                        window.currentChartInstance.destroy();
+                        window.currentChartInstance = null;
+                    }
+                }
+            } catch (e) {
+                console.error("Calculation Error", e);
+            }
+        }
+
+        // --- CHART RENDERING ---
+        function renderChart(dataObj) {
+            window.lastChartData = dataObj; // Save for theme toggle redraw
+            const ctx = document.getElementById('resultChart').getContext('2d');
+            const container = document.getElementById('chart-container');
+            container.classList.remove('hidden');
+            
+            if (window.currentChartInstance) {
+                window.currentChartInstance.destroy();
+            }
+
+            const isDark = document.documentElement.classList.contains('dark');
+            const textColor = isDark ? '#cbd5e1' : '#475569';
+            
+            const colors = isDark 
+                ? ['#93c5fd', '#3b82f6', '#1d4ed8'] 
+                : ['#dbeafe', '#3b82f6', '#1e3a8a']; 
+
+            window.currentChartInstance = new Chart(ctx, {
+                type: dataObj.type,
+                data: {
+                    labels: dataObj.labels,
+                    datasets: [{
+                        data: dataObj.data,
+                        backgroundColor: [colors[1], colors[0]],
+                        borderColor: isDark ? '#1e293b' : '#ffffff',
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: textColor,
+                                font: {
+                                    family: "'Inter', sans-serif"
+                                },
+                                padding: 20
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += formatCurrencyIN(context.parsed);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- INIT ---
+        window.addEventListener('DOMContentLoaded', () => {
+            renderHomeGrid();
+        });
+    </script>
+</body>
+</html>
