@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://vedhgitdev-byte.github.io/Finlixa/sitemap.xml
